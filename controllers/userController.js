@@ -1,11 +1,7 @@
-// ObjectId() method for converting userId string into an ObjectId for querying database
-// const { ObjectId } = require('mongoose').Types;
 const { User } = require('../models');
 
-
-
 module.exports = {
-  // Get all user
+  // Get all users
   getUser(req, res) {
     User.find()
     .populate('thoughts')
@@ -39,34 +35,26 @@ module.exports = {
       .then((user) => res.json(user))
       .catch((err) => res.status(500).json(err));
   },
+  // update a user
   updateUser(req, res) {
     User.findOneAndUpdate(
       { _id: req.params.userId },
       { $set: req.body },
       { runValidators: true, new: true }
     )
-      .then((course) =>
-        !course
+      .then((user) =>
+        !user
           ? res.status(404).json({ message: 'No user with this id!' })
-          : res.json(course)
+          : res.json(user)
       )
       .catch((err) => res.status(500).json(err));
   },
 
-  // Delete a user and remove them from the course
+  // Delete a user 
   deleteUser(req, res) {
     User.findOneAndRemove({ _id: req.params.userId })
       .then((user) =>
         !user
-          ? res.status(404).json({ message: 'No such user exists' })
-          : Course.findOneAndUpdate(
-            { users: req.params.userId },
-            { $pull: { users: req.params.userId } },
-            { new: true }
-          )
-      )
-      .then((course) =>
-        !course
           ? res.status(404).json({
             message: 'user deleted, but no user found',
           })

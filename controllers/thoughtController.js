@@ -19,11 +19,10 @@ module.exports = {
       )
       .catch((err) => res.status(500).json(err));
   },
-
+// create a new thought
   createThought(req, res) {
     Thought.create(req.body)
       .then((thought) => {
-        // console.log(thought)
         console.log(req.body);
         return User.findOneAndUpdate(
           { _id: req.body.userId },
@@ -50,9 +49,8 @@ module.exports = {
       .then((thought) =>
         !thought
           ? res.status(404).json({ message: 'No Thought with that ID' })
-          : Student.deleteMany({ _id: { $in: thought.students } })
+          : res.json({ message: 'Thought deleted!' })
       )
-      .then(() => res.json({ message: 'Thought and students deleted!' }))
       .catch(() => res.status(500).json());
   },
   // Update a Thought
@@ -69,38 +67,40 @@ module.exports = {
       )
       .catch((err) => res.status(500).json(err));
   },
+  // create a reaction
   createReaction({ params, body }, res) {
     Thought.findOneAndUpdate(
       { _id: params.thoughtId },
       { $push: { reactions: body } },
       { new: true, runValidators: true }
     )
-      .then(thoughts => {
-        if (!thoughts) {
+      .then(reactions => {
+        if (!reactions) {
           res.status(404).json({ message: 'No thought found at this id!' });
           return;
         }
 
-        res.json(thoughts);
+        res.json(reactions);
       })
       .catch(err => {
         console.log(err);
         res.status(400).json(err);
       });
   },
+  // delete a reaction
   deleteReaction({ params }, res) {
     Thought.findOneAndUpdate(
       { _id: params.thoughtId },
       { $pull: { reactions: { reactionId: params.reactionId } } },
       { new: true }
     )
-      .then(thoughts => {
-        if (!thoughts) {
+      .then(reactions => {
+        if (!reactions) {
           res.status(404).json({ message: 'No thoughts found at this id!' });
           return;
         }
+        res.json({ message: 'Thought deleted!' })
 
-        res.json(thoughts);
       })
       .catch(err => {
         console.log(err);
